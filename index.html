@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSINT Профиль</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    color: #c0d6f7;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(-45deg, #0a1b3d, #0f2a5c, #112d4e, #0a1b3d);
+    background-size: 400% 400%;
+    animation: gradientBG 20s ease infinite;
+}
+@keyframes gradientBG {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+header {
+    background-color: rgba(17, 45, 78, 0.8);
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(5px);
+    border-bottom: 1px solid #3a506b;
+}
+header img { width: 80px; height: auto; border-radius: 50%; margin-bottom: 10px; }
+header h1 { margin: 5px 0; font-size: 2em; }
+header p { margin: 3px 0; font-size: 1em; color: #a8c0f0; }
+
+.search-container { text-align: center; margin: 20px 0; }
+.search-container input { width: 50%; padding: 10px; border-radius: 10px; border: none; font-size: 1em; }
+
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(2, 220px);
+    grid-template-rows: repeat(2, 220px);
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+    transition: all 0.3s ease-in-out;
+    opacity: 1;
+}
+
+.card {
+    background-color: #1b263b;
+    border: 1px solid #3a506b;
+    border-radius: 10px;
+    width: 220px;
+    height: 220px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, border-color 0.2s;
+    cursor: pointer;
+}
+.card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.35);
+    border-color: #7fbfff;
+    background-color: #26354f;
+}
+.card.clicked {
+    box-shadow: 0 0 12px 2px #66b0ff;
+    border-color: #66b0ff;
+    transform: scale(1.04);
+    transition: all 0.25s;
+}
+.card .username { font-size: 1em; font-weight: bold; margin-bottom: 5px; color: #a0c4ff; }
+.card .nickname { font-size: 0.9em; color: #c0d6f7; margin-top: 5px; }
+.card img { width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; align-self: center; }
+
+footer {
+    background-color: rgba(17, 45, 78, 0.8);
+    color: #a8c0f0;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #3a506b;
+}
+
+.pagination { text-align: center; margin: 20px 0; }
+.pagination button { background-color: #1b263b; border: 1px solid #3a506b; color: #c0d6f7; padding: 8px 12px; margin: 0 3px; border-radius: 5px; cursor: pointer; transition: all 0.3s; }
+.pagination button.active, .pagination button:hover { background-color: #a0c4ff; color: #0d1b2a; border-color: #fff; }
+</style>
+</head>
+<body>
+
+<header>
+    <img src="https://www.svgrepo.com/show/70084/anonymous.svg" alt="Анонимус">
+    <h1>Официальный сайт канала @anonlistx</h1>
+    <p>Owner: @osintforw</p>
+    <p>Сайт для носителей приписки "анонимус"</p>
+    <p><strong>Занято 34 из 100</strong></p>
+</header>
+
+<div class="search-container">
+    <input type="text" id="search" placeholder="Поиск по никнейму..." onkeyup="filterCards()">
+</div>
+
+<div class="cards-container" id="cards-container"></div>
+<div class="pagination" id="pagination"></div>
+
+<footer>
+    &copy; 2025 @anonlistx — OSINT Профиль
+</footer>
+
+<script>
+const users = [
+  {username:"@osintforw", nickname:"cardiotomy (own)"},
+  {username:"@vwowr", nickname:"куверткуку (own)"},
+  {username:"@marrtovsky", nickname:"мартовски"},
+  {username:"@neebetkakto", nickname:"turkish"},
+  {username:"@fr1z1", nickname:"фризи"},
+  {username:"@TvertyDoebar", nickname:"тверти"},
+  {username:"@trolyaka_666", nickname:"trolyaka"},
+  {username:"@shymironov", nickname:"миронов"},
+  {username:"@shyxinkov", nickname:"хинков"},
+  {username:"@KarnyxDev", nickname:"ананимус"},
+  {username:"@imkratos", nickname:"кратос"},
+  {username:"@Codexattack", nickname:"кодекс"},
+  {username:"@AttackSantiz", nickname:"ксэмпл"},
+  {username:"@Texas10web", nickname:"техас"},
+  {username:"@bio5252", nickname:"void"},
+  {username:"@anonymouskronosov", nickname:"kronosov"},
+  {username:"@vkiznt", nickname:"Izantropov"},
+  {username:"@runnetful", nickname:"дарлимов"},
+  {username:"@httpsdorks", nickname:"ханаеv"},
+  {username:"@invicible_user", nickname:"invicible"},
+  {username:"@oxeoilw", nickname:"ангел мести"},
+  {username:"@alzhqA", nickname:"aris"},
+  {username:"@sexiscamer", nickname:"лицемер"},
+  {username:"@fuckanemia", nickname:"anemia"},
+  {username:"@ohn1k", nickname:"ohn1k"},
+  {username:"@morealov", nickname:"мореалов"},
+  {username:"@quwao", nickname:"мамонов"},
+  {username:"@userlakeosint", nickname:"sigma signa dox"},
+  {username:"@matrixovv", nickname:"matrixovv"},
+  {username:"@kalashikov44", nickname:"mirotvorovv"},
+  {username:"@vkbaikalov", nickname:"байкалов"},
+  {username:"@pOnNoSssiK", nickname:"vorex"},
+  {username:"@vkmyf", nickname:"plazzo"}
+];
+
+while(users.length < 100) users.push({username:"Пусто", nickname:"Пусто"});
+
+const cardsPerPage = 4;
+let currentPage = 1;
+
+function showPage(page){
+    const container = document.getElementById('cards-container');
+    container.style.opacity = 0;
+    setTimeout(()=>{
+        container.innerHTML="";
+        const start=(page-1)*cardsPerPage;
+        const end=start+cardsPerPage;
+        users.slice(start,end).forEach(u=>{
+            const card=document.createElement('div');
+            card.className="card";
+            card.innerHTML=`<div class="username">${u.username}</div>
+                            <img src="https://www.svgrepo.com/show/70084/anonymous.svg" alt="Анонимус">
+                            <div class="nickname">${u.nickname}</div>`;
+            card.onclick=()=>{
+                card.classList.add('clicked');
+                setTimeout(()=>card.classList.remove('clicked'),400);
+            };
+            container.appendChild(card);
+        });
+        container.style.opacity=1;
+        renderPagination();
+    },150);
+}
+
+function renderPagination(){
+    const pageCount=Math.ceil(users.length/cardsPerPage);
+    const container=document.getElementById('pagination');
+    container.innerHTML="";
+    for(let i=1;i<=pageCount;i++){
+        const btn=document.createElement('button');
+        btn.innerText=i;
+        if(i===currentPage) btn.classList.add('active');
+        btn.onclick=()=>{ currentPage=i; showPage(currentPage); };
+        container.appendChild(btn);
+    }
+}
+
+function filterCards(){
+    const input=document.getElementById('search').value.toLowerCase();
+    const filtered=users.filter(u=>u.username.toLowerCase().includes(input));
+    const container=document.getElementById('cards-container');
+    container.innerHTML="";
+    filtered.forEach(u=>{
+        const card=document.createElement('div');
+        card.className="card";
+        card.innerHTML=`<div class="username">${u.username}</div>
+                        <img src="https://www.svgrepo.com/show/70084/anonymous.svg" alt="Анонимус">
+                        <div class="nickname">${u.nickname}</div>`;
+        card.onclick=()=>{ card.classList.add('clicked'); setTimeout(()=>card.classList.remove('clicked'),400); };
+        container.appendChild(card);
+    });
+    document.getElementById('pagination').style.display = filtered.length<users.length ? 'none':'block';
+}
+
+showPage(currentPage);
+</script>
+</body>
+</html>
